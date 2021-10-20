@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html window-resizable="false" window-icon="favicon.png">
+
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Genetic Origins Heatmap v0.1.0</title>
+    <style>
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 800px;
+        height: 600px;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #0D1117;
+        position: relative;
+      }
+
+      #loading-spinner {
+        hit-margin: -999px;
+        position: absolute;
+        left: 0%;
+        top: 0%;
+        foreground-image: url('loading.png');
+        foreground-position: 50% 50%;
+        foreground-size: 50%;
+        width: 100%;
+        height: 100%;
+        z-index: 9;
+        animation: loading 2s linear infinite;
+        transform-origin: 50% 50%;
+      }
+
+      @keyframes loading {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        50% {
+          transform: rotate(180deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      #container {
+        position: relative;
+        text-align: center;
+        margin: auto;
+        width: max-content;
+        height: max-content;
+        padding: 10px;
+        border-spacing: *;
+      }
+
+      canvas {
+        display: none;
+        border: none;
+      }
+
+      img {
+        transform: scale(0.6) translate(-50%, -40%);
+        margin: auto;
+      }
+
+      #images {
+        margin: auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div #loading-spinner style="display: none;"></div>
+    <div #container>
+      <div style="width: *; height: max-content; flow: horizontal">
+        <button #open>Open 23andme File</button>
+        &nbsp;
+        <input #filename disabled value="" style="width: 15em; height: *;" />
+        &nbsp;
+        <button #run readonly>Generate Heatmap</button>
+        &nbsp;
+        <button #info>&#8505;</button>
+      </div>
+      <style>
+        #prev,
+        #next {
+          position: absolute;
+          top: 50%;
+          text-align: center;
+        }
+
+        #prev {
+          left: 0;
+          transform: translate(-200%, -50%);
+        }
+
+        #next {
+          right: 0;
+          transform: translate(225%, -50%);
+        }
+      </style>
+      <button #prev>&#11164;</button>
+      <button #next>&#11166;</button>
+
+      <canvas #europe width="1000" height="847" style="display: none"></canvas>
+      <canvas #asia width="1000" height="847" style="display: none"></canvas>
+      <canvas #america width="1000" height="847" style="display: none"></canvas>
+
+      <div #images>
+        <img name="europe" width="500" height="424" style="display: none" />
+        <img name="asia" width="500" height="424" style="display: none" />
+        <img name="america" width="500" height="424" style="display: none" />
+      </div>
+    </div>
+  </body>
+  <script type="module">
+    import { cwd } from '@sys';
+    import { $, $$ } from '@sciter';
+    import heatmap from './simpleheat/heatmap.js';
+    import processPercentages from './taux-de-similitude/index.js';
+
+    $('#info').on('click', () => {
+      Window.this.modal({ url: 'about.html' });
+    });
+
+    $('img[name="europe"]').style.display = 'block';
+
+    for (const c of ['europe', 'asia', 'america']) {
+      Graphics.Image.load(`${TEMP_FOLDER}/sciter/${c}.png`).then(img => {
+        $(`img[name="${c}"]`).paintContent = function (gfx) { gfx.draw(img) };
+        $(`img[name="${c}"]`).requestPaint();
+      });
+    }
+
+    document.on("click", "button#open", function () {
+      let filename = Window.this.selectFile({
+        filter: "TXT files only (*.txt)|*.txt|",
+        mode: "open",
+        path: ''
+      });
+      $('#filename').value = filename.replace('file://', '');
+      $('#run').state.disabled = !filename;
+      return true;
+    })
+
+    adjustWindow();
+
+    //heatmap();
+
+    document.querySelector('#run').on('click', calc);
+
+    async function calc() {
+      $('#loading-spinner').style.display = 'block';
+      $('#run').state.disabled = true;
+      $('#open').state.disabled = true;
+      const input_filename = $('#filename').value;
+      await _calc(input_filename);
+    }
+
+    function _calc(input_filename) {
+      return new Promise((resolve) => {
+        resolve(Window.this.xcall('foo', input_filename));
+      });
+    }
+
+    globalThis.handle_python_error = function handle_python_error(errType, errDetails) {
+      console.log('python requested an excpetion handling');
+      $('#loading-spinner').style.display = 'none';
+      $('#open').state.disabled = false;
+      Window.this.modal(<error caption="Error">{errType}<br />{errDetails}</error>);
+    }
+
+    globalThis.yeet = function yeet(results) {
+      $('#loading-spinner').style.display = 'none';
+      console.log('a');
+      results = parseResults(results);
+      console.log('b');
+      console.log(results);
+      results = processPercentages(
+        [...new Array(36).fill(0), ...results]
+      );
+      console.log('c');
+      console.log(JSON.stringify(results));
+      console.log(TEMP_FOLDER);
+      heatmap(results, TEMP_FOLDER);
+
+      $('#run').state.disabled = false;
+      $('#open').state.disabled = false;
+    }
+
+    function parseResults(results) {
+      return results.split('\n').map(s => {
+        return s.match(/[\d\.]+(?=%)/)?.[0];
+      }).filter(Boolean).map(Number);
+    }
+
+    $('#next').on('click', () => {
+      navigateCanvas('forward')
+    });
+
+    $('#prev').on('click', () => {
+      navigateCanvas('backward')
+    });
+
+    Number.prototype.mod = function (n) {
+      return ((this % n) + n) % n;
+    };
+
+    function navigateCanvas(direction = 'forward') {
+      const canvas = $$('img').find(({ style: { display } }) => display !== 'none');
+      const { name } = canvas;
+      const continents = ['europe', 'asia', 'america'];
+      const continent = continents[(continents.indexOf(name) + (direction === 'forward' ? 1 : -1)).mod(continents.length)];
+      canvas.style.display = 'none';
+      $(`img[name="${continent}"]`).style.display = 'block';
+    }
+
+    function adjustWindow() {
+      const [wmin, w] = document.state.contentWidths();
+      const h = document.state.contentHeight(w);
+      const [sw, sh] = Window.this.screenBox('frame', 'dimension');
+      Window.this.move((sw - w) / 2, (sh - h) / 2, w, h, true);
+      Window.this.isMinimizable = true;
+    }
+  </script>
+
+</html>
