@@ -19,7 +19,7 @@
   <br>
 </h1>
 
-## Build command:
+<h3>Build command:</h3>
 
 ```bash
 pyinstaller main.py --clean --name heatmap --onefile -i"icon.ico" --paths "admix" --add-data "admix/data/K36.alleles;./data" --add-data "admix/data/K36.36.F;./data" --add-data "sciter/main.html;./sciter" --add-data="sciter/about.html;./sciter" --add-data="sciter/favicon.png;./sciter" --add-data="sciter/loading.png;./sciter" --add-data="sciter/sciter.png;./sciter" --add-data="sciter/simpleheat/heatmap.js;./sciter/simpleheat" --add-data="sciter/taux-de-similitude/index.js;./sciter/taux-de-similitude" --add-data="sciter/taux-de-similitude/fn.js;./sciter/taux-de-similitude" --add-data="sciter/taux-de-similitude/data.js;./sciter/taux-de-similitude" --add-data="sciter/taux-de-similitude/cells.js;./sciter/taux-de-similitude" --add-data="sciter/taux-de-similitude/america.png;./sciter" --add-data="sciter/taux-de-similitude/europe.png;./sciter" --add-data="sciter/taux-de-similitude/asia.png;./sciter" --add-data="sciter/128x128.png;./sciter" --windowed
