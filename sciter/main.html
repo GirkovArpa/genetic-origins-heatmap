@@ -3,7 +3,7 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Genetic Origins Heatmap v0.1.0</title>
+    <title>Genetic Origins Heatmap v0.1.1</title>
     <style>
       * {
         margin: 0;
@@ -73,20 +73,62 @@
       #images {
         margin: auto;
       }
+
+      option {
+        height: 1.5em;
+      }
+
+      option, option * {
+        vertical-align: middle;
+        line-height: 1em;
+        height: 1.5em;
+      }
+
+      option:hover {
+        background-color: #FE9806;
+        color: white;
+      }
+
+      #first-row {
+        height: 2em !important;
+      }
+
+      * {
+        font-size: 12px !important;
+      }
+
+      #filename {
+        height: *;
+      }
+
+      #first-row button {
+        vertical-align: middle;
+        line-height: 1.5em;
+      }
+
+      #first-row button > span {
+        line-height: 2em;
+        vertical-align: middle;
+      }
     </style>
   </head>
 
   <body>
     <div #loading-spinner style="display: none;"></div>
     <div #container>
-      <div style="width: *; height: max-content; flow: horizontal">
-        <button #open>Open 23andme File</button>
+      <div #first-row style="width: *; flow: horizontal">
+        <button #open><span>Select Raw Data File</span></button>
         &nbsp;
-        <input #filename disabled value="" style="width: 15em; height: *;" />
+        <input #filename readonly value="" style="width: 15em;" />
         &nbsp;
-        <button #run readonly>Generate Heatmap</button>
+        <select #vendor>
+          <option value="23andme">23andMe</option>
+          <option value="ancestry">AncestryDNA</option>
+        </select>
         &nbsp;
-        <button #info>&#8505;</button>
+        <button #run disabled><span>Generate Heatmap</span></button>
+        &nbsp;
+        <button #info><span>&#8505;</span></button>
       </div>
       <style>
         #prev,
@@ -160,13 +202,15 @@
       $('#loading-spinner').style.display = 'block';
       $('#run').state.disabled = true;
       $('#open').state.disabled = true;
+      $('#vendor').state.disabled = true;
       const input_filename = $('#filename').value;
-      await _calc(input_filename);
+      const vendor = $('#vendor').value;
+      await _calc(input_filename, vendor);
     }
 
-    function _calc(input_filename) {
+    function _calc(input_filename, vendor) {
       return new Promise((resolve) => {
-        resolve(Window.this.xcall('foo', input_filename));
+        resolve(Window.this.xcall('foo', input_filename, vendor));
       });
     }
 
@@ -174,6 +218,7 @@
       console.log('python requested an excpetion handling');
       $('#loading-spinner').style.display = 'none';
       $('#open').state.disabled = false;
+      $('#vendor').state.disabled = false;
       Window.this.modal(<error caption="Error">{errType}<br />{errDetails}</error>);
     }
 
@@ -193,6 +238,7 @@
 
       $('#run').state.disabled = false;
       $('#open').state.disabled = false;
+      $('#vendor').state.disabled = false;
     }
 
     function parseResults(results) {

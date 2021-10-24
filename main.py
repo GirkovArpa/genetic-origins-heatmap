@@ -67,8 +67,8 @@ class Frame(sciter.Window):
         pass
 
     @sciter.script
-    def foo(self, input_filename):
-        thread = Thread(target=main, args=(self, input_filename))
+    def foo(self, input_filename, vendor):
+        thread = Thread(target=main, args=(self, input_filename, vendor))
         thread.start()
 
     @sciter.script

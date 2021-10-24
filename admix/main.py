@@ -126,7 +126,7 @@ def admix_results(models,
     return result
 
 
-def main(self, input_filename):
+def main(self, input_filename, vendor):
     try:
         print(input_filename)
 
@@ -137,7 +137,7 @@ def main(self, input_filename):
         args = {
             'models': [ 'K36' ],
             'file': input_filename,
-            'vendor': '23andme',
+            'vendor': vendor,
             'output': None,
             'zhongwen': False,
             'tolerance': '1e-3',
