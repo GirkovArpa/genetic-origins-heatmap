@@ -10,7 +10,7 @@
 </h1>
 
 <h3 align="center">
-  Use your 23andMe or AncestryDNA data to paint a heatmap of your origins.
+  Use your raw DNA data (e.g. from 23andMe) to paint a heatmap of your origins.
 </h3>
 
 <h1 align="center">

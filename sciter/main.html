@@ -3,7 +3,7 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Genetic Origins Heatmap v0.1.1</title>
+    <title>Genetic Origins Heatmap v0.1.2</title>
     <style>
       * {
         margin: 0;
@@ -124,6 +124,10 @@
         <select #vendor>
           <option value="23andme">23andMe</option>
           <option value="ancestry">AncestryDNA</option>
+          <option value="ftdna">FamilyTreeDNA</option>
+          <option value="ftdna2">FamilyTreeDNA2</option>
+          <option value="myheritage">MyHeritage</option>
+          <option value="wegene">WeGene</option>
         </select>
         &nbsp;
         <button #run disabled><span>Generate Heatmap</span></button>
@@ -223,7 +227,6 @@
     }
 
     globalThis.yeet = function yeet(results) {
-      $('#loading-spinner').style.display = 'none';
       console.log('a');
       results = parseResults(results);
       console.log('b');
@@ -239,6 +242,8 @@
       $('#run').state.disabled = false;
       $('#open').state.disabled = false;
       $('#vendor').state.disabled = false;
+
+      $('#loading-spinner').style.display = 'none';
     }
 
     function parseResults(results) {
