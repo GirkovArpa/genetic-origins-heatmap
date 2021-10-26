@@ -3,7 +3,7 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Genetic Origins Heatmap v0.1.2</title>
+    <title>Genetic Origins Heatmap v0.2.0</title>
     <style>
       * {
         margin: 0;
@@ -78,7 +78,8 @@
         height: 1.5em;
       }
 
-      option, option * {
+      option,
+      option * {
         vertical-align: middle;
         line-height: 1em;
         height: 1.5em;
@@ -106,7 +107,7 @@
         line-height: 1.5em;
       }
 
-      #first-row button > span {
+      #first-row button>span {
         line-height: 2em;
         vertical-align: middle;
       }
@@ -117,11 +118,11 @@
     <div #loading-spinner style="display: none;"></div>
     <div #container>
       <div #first-row style="width: *; flow: horizontal">
-        <button #open><span>Select Raw Data File</span></button>
+        <button #open title="Select Raw Data File"><span>Select File</span></button>
         &nbsp;
-        <input #filename readonly value="" style="width: 15em;" />
+        <input #filename readonly value="" style="width: 15em;" title="Raw Data Filename" />
         &nbsp;
-        <select #vendor>
+        <select #vendor title="Raw Data Vendor">
           <option value="23andme">23andMe</option>
           <option value="ancestry">AncestryDNA</option>
           <option value="ftdna">FamilyTreeDNA</option>
@@ -130,9 +131,13 @@
           <option value="wegene">WeGene</option>
         </select>
         &nbsp;
-        <button #run disabled><span>Generate Heatmap</span></button>
+        <button #run disabled title="Run Eurogenes K36 Calculator & Taux de Similitude"><span>Generate
+            Heatmap</span></button>
         &nbsp;
-        <button #info><span>&#8505;</span></button>
+        <button #advanced title="Advanced Settings"><span>&#9881;</span></button>
+        &nbsp;
+        <button #info title="About"><span>&#8505;</span></button>
+        <input #tolerance value="1e-3" hidden  />
       </div>
       <style>
         #prev,
@@ -149,11 +154,11 @@
 
         #next {
           right: 0;
-          transform: translate(225%, -50%);
+          transform: translate(200%, -50%);
         }
       </style>
-      <button #prev>&#11164;</button>
-      <button #next>&#11166;</button>
+      <button #prev title="Previous Map">&#11164;</button>
+      <button #next title="Next Map">&#11166;</button>
 
       <canvas #europe width="1000" height="847" style="display: none"></canvas>
       <canvas #asia width="1000" height="847" style="display: none"></canvas>
@@ -176,6 +181,16 @@
       Window.this.modal({ url: 'about.html' });
     });
 
+    $('#advanced').on('click', () => {
+      const tolerance = Window.this.modal({
+        url: 'advanced.html',
+        parameters: {
+          tolerance: $('#tolerance').value
+        }
+      });
+      $('#tolerance').value = tolerance;
+    });
+
     $('img[name="europe"]').style.display = 'block';
 
     for (const c of ['europe', 'asia', 'america']) {
@@ -187,11 +202,12 @@
 
     document.on("click", "button#open", function () {
       let filename = Window.this.selectFile({
-        filter: "TXT files only (*.txt)|*.txt|",
+        filter: "All Files (*.*)|*.*|",
         mode: "open",
-        path: ''
+        path: '',
+        caption: 'Select Raw Data File'
       });
-      $('#filename').value = filename.replace('file://', '');
+      $('#filename').value = filename?.replace('file://', '');
       $('#run').state.disabled = !filename;
       return true;
     })
@@ -207,14 +223,17 @@
       $('#run').state.disabled = true;
       $('#open').state.disabled = true;
       $('#vendor').state.disabled = true;
+      $('#advanced').state.disabled = true;
       const input_filename = $('#filename').value;
       const vendor = $('#vendor').value;
-      await _calc(input_filename, vendor);
+      const tolerance = $('#tolerance').value; 
+      await _calc(input_filename, vendor, tolerance);
     }
 
-    function _calc(input_filename, vendor) {
+    function _calc(input_filename, vendor, tolerance) {
+      console.log('SCITER: tolerance', tolerance);
       return new Promise((resolve) => {
-        resolve(Window.this.xcall('foo', input_filename, vendor));
+        resolve(Window.this.xcall('foo', input_filename, vendor, tolerance));
       });
     }
 
@@ -223,6 +242,7 @@
       $('#loading-spinner').style.display = 'none';
       $('#open').state.disabled = false;
       $('#vendor').state.disabled = false;
+      $('#advanced').state.disabled = false;
       Window.this.modal(<error caption="Error">{errType}<br />{errDetails}</error>);
     }
 
@@ -231,6 +251,9 @@
       results = parseResults(results);
       console.log('b');
       console.log(results);
+
+      const resultsError = checkResultsForError(results);
+
       results = processPercentages(
         [...new Array(36).fill(0), ...results]
       );
@@ -242,8 +265,24 @@
       $('#run').state.disabled = false;
       $('#open').state.disabled = false;
       $('#vendor').state.disabled = false;
+      $('#advanced').state.disabled = false;
 
       $('#loading-spinner').style.display = 'none';
+
+      if (resultsError) {
+        Window.this.requestAttention('alert');
+        Window.this.modal(<error caption="Error">Unfortunately, the Eurogenes K36 calculator did not output sensible results.<br /><br />This might be caused by a failure to parse your raw data, or an inappropriate tolerance.<br />Click the gear button to adjust this setting.</error>);
+      } else {
+        Window.this.requestAttention('alert');
+      }
+      setTimeout(() => Window.this.requestAttention('stop'), 1_000);
+    }
+
+    function checkResultsForError(results) {
+      if (results.filter(n => n === 2.78).length === results.length) {
+        return true;
+      }
+      return false;
     }
 
     function parseResults(results) {

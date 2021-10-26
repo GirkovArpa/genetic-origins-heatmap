@@ -2,7 +2,7 @@
 <html window-resizable="false" window-icon="favicon.png">
 
   <head>
-    <title>About</title>
+    <title>Advanced Settings</title>
     <style>
       html {
         font: system;
@@ -40,17 +40,10 @@
       .title {
         font-weight: bold !important;
         flow: column !important;
-        text-align: left !important;
+        text-align: center !important;
         margin: auto !important;
         width: min-content !important;
-        transform: translate(1.5em, 0.5em);
-      }
-
-      .title div:last-child {
-        font-weight: 100 !important;
-        text-align: center !important;
-        font-size: 0.5em !important;
-        opacity: 0.5 !important;
+        transform: translate(1.1em, 1em);
       }
 
       v {
@@ -59,8 +52,9 @@
       }
 
       #content {
-        background-image: url(128x128.png);
-        background-position: 2.6em 0.5em;
+        background-image: url(path: M24 13.616v-3.232c-1.651-.587-2.694-.752-3.219-2.019v-.001c-.527-1.271.1-2.134.847-3.707l-2.285-2.285c-1.561.742-2.433 1.375-3.707.847h-.001c-1.269-.526-1.435-1.576-2.019-3.219h-3.232c-.582 1.635-.749 2.692-2.019 3.219h-.001c-1.271.528-2.132-.098-3.707-.847l-2.285 2.285c.745 1.568 1.375 2.434.847 3.707-.527 1.271-1.584 1.438-3.219 2.02v3.232c1.632.58 2.692.749 3.219 2.019.53 1.282-.114 2.166-.847 3.707l2.285 2.286c1.562-.743 2.434-1.375 3.707-.847h.001c1.27.526 1.436 1.579 2.019 3.219h3.232c.582-1.636.75-2.69 2.027-3.222h.001c1.262-.524 2.12.101 3.698.851l2.285-2.286c-.744-1.563-1.375-2.433-.848-3.706.527-1.271 1.588-1.44 3.221-2.021zm-12 2.384c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4z);
+        background-position: 1.7em 0.5em;
+        fill: grey;
       }
 
       div#info {
@@ -90,10 +84,9 @@
       #button-bar {
         flow: horizontal;
         padding: 10dip;
-        border-spacing: 10dip;
+        border-spacing: *;
         margin: 0;
         flow: horizontal;
-        horizontal-align: right;
       }
 
       label {
@@ -109,65 +102,53 @@
         width: min-intrinsic;
         text-align: center;
       }
+
+      #tolerance {
+        text-align: right;
+      }
     </style>
   </head>
 
   <body>
     <section #content>
       <div .title>
-          <div>Genetic</div>
-          <div>Origins</div>
-          <div>Heatmap</div>
-          <div>v0.2.0</div>
+        <div>Advanced</div>
+        <div>Settings</div>
       </div>
 
     </section>
     <div #info>
       <div .row>
-        This application uses <img src="sciter.png" width="16" height="16" />&nbsp;<a #sciter>Sciter</a> Engine,
-      </div>
-      <div .row>
-        © <a #terra-informatica>Terra Informatica Software</a>, Inc.
-      </div>
-      <div .row>
-        <a #taux-de-similitude>Taux de Similitude</a>, & <a #admix>Admix</a>.
-      </div>
-      <br>
-      <div .row>
-        — <a #girkov-arpa>Girkov Arpa</a> 2021
+        <label>Tolerance:&nbsp;
+          <input #tolerance novalue="1e-3" />
+        </label>
       </div>
     </div>
     </div>
     </div>
     <footer #button-bar>
-      <button>Ok</button>
+      <button #ok role="default-button">Ok</button>
+      <button #cancel role="cancel-button">Cancel</button>
     </footer>
   </body>
   <script type="module">
     import { $, $$ } from '@sciter';
-    import { launch } from '@env';
 
-    $('#sciter').on('click', () => {
-      launch('https://sciter.com');
+    $('#tolerance').value = Number(Window.this.parameters.tolerance).toExponential();
+
+    $('#ok').on('click', () => {
+      const tolerance = Number($('#tolerance').value);
+      if (isNaN(tolerance)) {
+        Window.this.modal(<error caption="Error">{$('#tolerance').value} is not a number.</error>);
+        return;
+      }
+      Window.this.close($('#tolerance').value);
     });
 
-    $('#terra-informatica').on('click', () => {
-      launch('https://terrainformatica.com');
+    $('#cancel').on('click', () => {
+      const { tolerance } = Window.this.parameters;
+      Window.this.close(tolerance);
     });
-
-    $('#taux-de-similitude').on('click', () => {
-      launch('https://gen3553.pagesperso-orange.fr/ADN/similitude.htm');
-    });
-
-    $('#admix').on('click', () => {
-      launch("https://github.com/stevenliuyi/admix");
-    });
-
-    $('#girkov-arpa').on('click', () => {
-      launch('https://girkovarpa.itch.io/');
-    });
-
-    $('button').on('click', () => Window.this.close());
   </script>
 
 </html>

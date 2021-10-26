@@ -126,7 +126,7 @@ def admix_results(models,
     return result
 
 
-def main(self, input_filename, vendor):
+def main(self, input_filename, vendor, tolerance):
     try:
         print(input_filename)
 
@@ -140,7 +140,7 @@ def main(self, input_filename, vendor):
             'vendor': vendor,
             'output': None,
             'zhongwen': False,
-            'tolerance': '1e-3',
+            'tolerance': tolerance,
             'sort': False,
             'ignore_zeros': False
         }

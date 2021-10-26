@@ -67,8 +67,9 @@ class Frame(sciter.Window):
         pass
 
     @sciter.script
-    def foo(self, input_filename, vendor):
-        thread = Thread(target=main, args=(self, input_filename, vendor))
+    def foo(self, input_filename, vendor, tolerance):
+        print('PY TOLERANCE: ' + tolerance)
+        thread = Thread(target=main, args=(self, input_filename, vendor, tolerance))
         thread.start()
 
     @sciter.script
