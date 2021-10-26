@@ -3,7 +3,7 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Genetic Origins Heatmap v0.2.0</title>
+    <title>Genetic Origins Heatmap v0.2.1</title>
     <style>
       * {
         margin: 0;
@@ -111,16 +111,101 @@
         line-height: 2em;
         vertical-align: middle;
       }
+
+      #info {
+        foreground-position: 50% 50%;
+        foreground-size: 1em 1em;
+        stroke: white;
+        fill: blue;
+        foreground-image: url(path: M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-.001 5.75c.69 0 1.251.56 1.251 1.25s-.561 1.25-1.251 1.25-1.249-.56-1.249-1.25.559-1.25 1.249-1.25zm2.001 12.25h-4v-1c.484-.179 1-.201 1-.735v-4.467c0-.534-.516-.618-1-.797v-1h3v6.265c0 .535.517.558 1 .735v.999z);
+      }
+
+      #advanced {
+        foreground-position: 50% 50%;
+        foreground-size: 1em 1em;
+        stroke: black;
+        fill: grey;
+        foreground-image: url(path: M24 13.616v-3.232c-1.651-.587-2.694-.752-3.219-2.019v-.001c-.527-1.271.1-2.134.847-3.707l-2.285-2.285c-1.561.742-2.433 1.375-3.707.847h-.001c-1.269-.526-1.435-1.576-2.019-3.219h-3.232c-.582 1.635-.749 2.692-2.019 3.219h-.001c-1.271.528-2.132-.098-3.707-.847l-2.285 2.285c.745 1.568 1.375 2.434.847 3.707-.527 1.271-1.584 1.438-3.219 2.02v3.232c1.632.58 2.692.749 3.219 2.019.53 1.282-.114 2.166-.847 3.707l2.285 2.286c1.562-.743 2.434-1.375 3.707-.847h.001c1.27.526 1.436 1.579 2.019 3.219h3.232c.582-1.636.75-2.69 2.027-3.222h.001c1.262-.524 2.12.101 3.698.851l2.285-2.286c-.744-1.563-1.375-2.433-.848-3.706.527-1.271 1.588-1.44 3.221-2.021zm-12 2.384c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4z);
+      }
+
+      select caption {
+        text-align: left;
+        foreground-size: 1em 1em;
+        foreground-position: 0.5em 50%;
+        padding-left: 2em;
+      }
+
+      option {
+        text-align: left;
+        foreground-size: 1em 1em;
+        foreground-position: 0.5em 50%;
+        padding-left: 2em;
+      }
+
+      [value="23andme"] {
+        foreground-image: url(23andMe.ico);
+      }
+
+      [value="ancestry"] {
+        foreground-image: url(AncestryDNA.ico);
+      }
+
+      [value="ftdna"],
+      [value="ftdna2"] {
+        foreground-image: url(FamilyTreeDNA.png);
+      }
+
+      [value="myheritage"] {
+        foreground-image: url(MyHeritage.ico);
+      }
+
+      [value="wegene"] {
+        foreground-image: url(WeGene.ico);
+      }
+
+      #open {
+        padding-left: 1.75em;
+        foreground-size: 1em 1em;
+        foreground-position: 0.5em 50%;
+        stroke: black;
+        fill: tan;
+        foreground-image: url(path: M2 9l-1-7h5.694c1.265 1.583 1.327 2 3.306 2h13l-1 5h-4.193l-3.9-3-1.464 1.903 1.428 1.097h-1.971l-3.9-3-2.307 3h-3.693zm-2 2l2 11h20l2-11h-24z);
+      }
+
+      #run {
+        padding-left: 1.75em;
+        foreground-size: 1em 1em;
+        foreground-position: 0.5em 50%;
+        stroke: black;
+        fill: lime;
+        foreground-image: url(path: M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3 18v-12l9 6-9 6z);
+      }
+
+      button:disabled {
+        filter: saturate(0);
+      }
+
+      button:not(:disabled) {
+        filter: saturate(100%);
+      }
     </style>
   </head>
 
   <body>
+    <!-- <script>
+      setTimeout(() => {
+        document.querySelector('#open').state.disabled = true;
+        setTimeout(() => {
+          document.querySelector('#open').state.disabled = false;
+        },1000);
+      }, 1000);
+    </script> -->
     <div #loading-spinner style="display: none;"></div>
     <div #container>
       <div #first-row style="width: *; flow: horizontal">
         <button #open title="Select Raw Data File"><span>Select File</span></button>
         &nbsp;
-        <input #filename readonly value="" style="width: 15em;" title="Raw Data Filename" />
+        <input #filename readonly value="" style="width: 12em;" title="Raw Data Filename" />
         &nbsp;
         <select #vendor title="Raw Data Vendor">
           <option value="23andme">23andMe</option>
@@ -134,10 +219,10 @@
         <button #run disabled title="Run Eurogenes K36 Calculator & Taux de Similitude"><span>Generate
             Heatmap</span></button>
         &nbsp;
-        <button #advanced title="Advanced Settings"><span>&#9881;</span></button>
+        <button #advanced title="Advanced Settings"><span>&nbsp;</span></button>
         &nbsp;
-        <button #info title="About"><span>&#8505;</span></button>
-        <input #tolerance value="1e-3" hidden  />
+        <button #info title="About"><span>&nbsp;</span></button>
+        <input #tolerance value="1e-3" hidden />
       </div>
       <style>
         #prev,
@@ -149,16 +234,26 @@
 
         #prev {
           left: 0;
-          transform: translate(-200%, -50%);
+          transform: translate(-200%, -50%) scale(-1, 1);
+          foreground-position: 50% 50%;
+          foreground-size: 1em 1em;
+          stroke: black;
+          fill: black;
+          foreground-image: url(path: M22 12l-20 12 5-12-5-12z);
         }
 
         #next {
           right: 0;
           transform: translate(200%, -50%);
+          foreground-position: 50% 50%;
+          foreground-size: 1em 1em;
+          stroke: black;
+          fill: black;
+          foreground-image: url(path: M22 12l-20 12 5-12-5-12z);
         }
       </style>
-      <button #prev title="Previous Map">&#11164;</button>
-      <button #next title="Next Map">&#11166;</button>
+      <button #prev title="Previous Map">&nbsp;</button>
+      <button #next title="Next Map">&nbsp;</button>
 
       <canvas #europe width="1000" height="847" style="display: none"></canvas>
       <canvas #asia width="1000" height="847" style="display: none"></canvas>
@@ -226,7 +321,7 @@
       $('#advanced').state.disabled = true;
       const input_filename = $('#filename').value;
       const vendor = $('#vendor').value;
-      const tolerance = $('#tolerance').value; 
+      const tolerance = $('#tolerance').value;
       await _calc(input_filename, vendor, tolerance);
     }
 
