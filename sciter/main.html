@@ -3,7 +3,7 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Genetic Origins Heatmap v0.2.1</title>
+    <title>Genetic Origins Heatmap v0.2.2</title>
     <style>
       * {
         margin: 0;
@@ -205,7 +205,7 @@
       <div #first-row style="width: *; flow: horizontal">
         <button #open title="Select Raw Data File"><span>Select File</span></button>
         &nbsp;
-        <input #filename readonly value="" style="width: 12em;" title="Raw Data Filename" />
+        <input #filename value="" style="width: 12em;" title="Raw Data Filename" />
         &nbsp;
         <select #vendor title="Raw Data Vendor">
           <option value="23andme">23andMe</option>
@@ -222,7 +222,7 @@
         <button #advanced title="Advanced Settings"><span>&nbsp;</span></button>
         &nbsp;
         <button #info title="About"><span>&nbsp;</span></button>
-        <input #tolerance value="1e-3" hidden />
+        <input #tolerance value="1e-7" hidden />
       </div>
       <style>
         #prev,
@@ -302,7 +302,7 @@
         path: '',
         caption: 'Select Raw Data File'
       });
-      $('#filename').value = filename?.replace('file://', '');
+      $('#filename').value = decodeURIComponent(filename?.replace('file://', ''));
       $('#run').state.disabled = !filename;
       return true;
     })
